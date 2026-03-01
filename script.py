@@ -24,27 +24,25 @@ contractions = {
     # Add more common contractions if needed
 }
 
-def clean_text(text, expand_contractions=False):
+def clean_text(text, split_contractions=False):
     text = text.lower()
-    # Optional: Remove section headers like [Chorus] if present in the file
-    # text = re.sub(r'\[.*?\]', '', text)
     text = text.replace("’", "'").replace("‘", "'").replace("—", "-")
-    if expand_contractions:
-        for key, value in contractions.items():
-            text = text.replace(key, value)
-    # Remove punctuation
-    text = re.sub(r'[^\w\s]', '', text)
-    words = text.split()
-    return words
+
+    if split_contractions:
+        # Split contractions: don't -> don t, i'm -> i m, you're -> you re
+        text = re.sub(r"([a-z0-9])'([a-z0-9])", r"\1 \2", text)
+
+    text = re.sub(r"[^\w\s]", "", text)
+    return text.split()
 
 with open(if_path, 'r') as f:
     if_text = f.read()
-if_words = clean_text(if_text, expand_contractions=False)
+if_words = clean_text(if_text, split_contractions=False)
 word_count_if = len(if_words)
 
 with open(always_path, 'r') as f:
     always_text = f.read()
-always_words = clean_text(always_text, expand_contractions=True)
+always_words = clean_text(always_text, split_contractions=True)
 word_count_always = len(always_words)
 
 grand_total = word_count_if + word_count_always
